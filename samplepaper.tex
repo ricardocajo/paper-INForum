@@ -64,7 +64,59 @@ The language allows describing a robotic system's properties in a somewhat simpl
 
 \section{Language}
 
+The domain-specific language relies on an adaptation of linear temporal logic to express temporal relations of and between simulation objects.
+
+The domain-specific language also has shortcuts to express the absolute values of certain useful concepts of objects in a simulation.
+
+\subsection{Temporal Keywords}
+
+\begin{itemize}
+\item always X (X has to hold on the entire subsequent path);
+\item never X (X never holds on the entire subsequent path);
+\item eventually X (X eventually has to hold, somewhere on the subsequent path);
+\item after X, Y (after the event X is observed, Y has to hold on the entire subsequent path);
+\item until X, Y (X holds at the current or future position, and Y has to hold until that position. At that position, Y does not have to hold anymore);
+\item after\_until X, Y, Z (after the event X is observed, Z has to hold on the entire subsequent path up until Y happens, at that position Z does not have to hold anymore);
+\end{itemize}
+
+\noindent It is also possible to reference previous variable states:
+\begin{equation}
+@\{X, -y\}
+\end{equation}
+This will represent the value of the variable X in the point in time -y.
+
+\subsection{Useful Predicates}
+
+\begin{itemize}
+\item X.position (The position of the robot in the simulation);
+\item X.position.y (The position in the y axis of the robot in the simulation. Also works for x and z);
+\item X.distance.Y (The absolute distance between two objects in the simulation. For the x and y axis);
+\item X.distanceZ.Y (The absolute distance between two objects in the simulation. For the x, y, and z axis);
+\item X.velocity (The velocity of an object in the simulation. This refers to linear velocity);
+\item X.velocity.x (The velocity in the x axis of an object in the simulation. This refers to linear velocity);
+\item X.localization\_error - The difference between the robot's perception of its position and the actual position in the simulation;
+\end{itemize}
+
+\subsection{Examples}
+
+As an example, we specify two properties of an arbitary autonomous driving robot:
+
+\subsubsection{Property One}:
+
+The robot velocity will never be above 2 in the duration of the simulation;
+
+never robot.velocity > 2.0
+
+\subsubsection{Property Two}:
+
+The robot always needs to stop when coming near a stop sign;
+
+after\_until robot.distance.stop\_sign < 1, robot.distance.stop\_sign > 1, eventually robot.velocity == 0
+
+(Translating to a more human language we are saying that, after the robot distance to the stop\_sign is below the value of 1 in the simulator, up until the distance is again above 1, the robot velocity will eventually be equal to 0)
+
 \section{Monitoring}
+*Should i go in specifics about generated file? (subscribers, properties, etc..)?*
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\section{First Section}
 %\subsection{A Subsection Sample}
