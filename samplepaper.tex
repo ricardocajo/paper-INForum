@@ -116,7 +116,14 @@ after\_until robot.distance.stop\_sign < 1, robot.distance.stop\_sign > 1, event
 (Translating to a more human language we are saying that, after the robot distance to the stop\_sign is below the value of 1 in the simulator, up until the distance is again above 1, the robot velocity will eventually be equal to 0)
 
 \section{Monitoring}
-*Should i go in specifics about generated file? (subscribers, properties, etc..)?*
+
+The specified properties are compiled and a python file is generated which is capable of running as a ROS node. The node listens to relevant topics and performs the computations to verify the specified properties.
+
+*Should I go into specifics about generated file? (subscribers, properties, etc..)? That I get the real information from the simulator topic "gazebo/model\_states"?*
+
+*Should I show an example with images?*
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\section{First Section}
 %\subsection{A Subsection Sample}
