@@ -17,7 +17,7 @@
 \begin{document}
 %
 \title{Formalization and Runtime Verification of Invariants for
-Robotic Systems\thanks{Supported by organization x.}}
+Robotic Systems}
 %
 %\titlerunning{Abbreviated paper title}
 % If the paper title is too long for the running head, you can set
@@ -25,7 +25,7 @@ Robotic Systems\thanks{Supported by organization x.}}
 %
 \author{Ricardo Cordeiro\inst{1} \and
 Alcides Fonseca\inst{1} \and
-Christopher Timperley\inst{2}}
+Christopher S. Timperley\inst{2}}
 %\orcidID{0000-0002-8959-1702}
 %
 \authorrunning{Ricardo Cordeiro et al.}
@@ -39,30 +39,44 @@ Carnegie Mellon University, Pittsburgh, PA}
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-    Robotics has a big influence in today's society, so much that a potential failure in a robot may have extraordinary costs, not only financial, but can also cost lives.
-    Current practices in robot testing are vast and involve such methods as simulations, log checking, or field tests. The frequent common denominator between these practices is the need for human visualization to determine the correctness of a given behavior. Automating this analysis could not only relieve this burden from a high-skilled engineer, but also allow for massive parallel executions of tests, that could potentially detect behavioral faults in the robots that would otherwise not be found due to human error or lack of time.
-    We have developed a domain-specific language to specify properties of robotic systems in ROS. Specifications written by developers in this language can be compiled to a monitor ROS module, that will detect violations of those properties. We have used this language to express the temporal and positional properties of robots, and we have automated the monitoring of some behavioral violations of robots in relation to their state or events during a simulation.
+    Robotic systems are critical in today's society, a potential failure in a robot may have extraordinary costs, not only financial, but can also cost lives.
+    Current practices in robot testing are vast and involve methods like simulation, log checking, or field testing. However current practices often require human visualization to determine the correctness of a given behavior. Automating this analysis can not only relieve the burden from a high-skilled engineer, but also allow for massive parallel executions of tests, that can detect behavioral faults in the robots that would otherwise not be found due to human error or lack of time.
+    We have developed a domain-specific language to specify properties of robotic systems in ROS. Specifications written by developers in this language are compiled to a monitor ROS (Robot Operating System) module, that detects violations of those properties in runtime. We have used this language to express the temporal and positional properties of robots, and we have automated the monitoring of some behavioral violations of robots in relation to their state or events during a simulation.
 
-\keywords{Robotics  \and Domain-specific language \and Runtime Monitoring \and Error detection \and Automation.}
+\keywords{Robotics  \and Domain-specific language \and Runtime Monitoring \and Error detection.}
 \end{abstract}
 %
 %
 %
 \section{Introduction}
 
-Robotics already have a great impact on our current society. Due to their broad practicality, the quality of software used by robots should be of extreme importance to us.
+Robotics already have a great impact on our current society. Due to their broad practicality, the quality of software used by robots should be of extreme importance to us. Robotic Systems are non-deterministic, mainly because robots interact directly with the real world. A sensor can return imprecise values since the environment itself can be very hard to predict. As a result, verifying whether a task or movement is correct can be difficult for a system to conceive.
 
-The Cyber-Physical systems of robots are non-deterministic and unreliable, mainly because robots interact directly with the real world. A sensor can return imprecise values since the environment itself can be very hard to predict. As a result, verifying whether a task or movement is correct can be hard for a system to conceive.
+ROS is an open-source framework with a vast collection of libraries, interfaces, and tools that help build robot software. ROS provides an abstraction between hardware and software that helps developers easily connect the different robot components throught what are called "topics" and "messages".
 
-Current practices in testing robot software involve, field testing, simulation testing, logs checking, among others. The common denominator among these is that they require a human to analyze the behavior of the robot to determine whether the behavior is correct.
+Current practices in testing robot software mainly involve, field testing, simulation testing, and logs checking and require a human to analyze the behavior of the robot to determine whether the behavior is correct.
 
-In the case of simulators, we can use the real value of objects' attributes in a simulation to compare with what the robot system perceives, but even so problems like what components to monitor and how to express them arise. Having a domain-specific language to specify a robotic system's properties can be useful or a burden depending on its complexity and accessibility.
+The objective of this work is showing how a domain-specific language can be used to specify temporal and positional properties of robotic systems and monitor the simulation components associated with these properties.
 
-This work has the objective of showing how a domain-specific language can be used to specify temporal and positional properties of robotic systems and monitor the simulation components associated with these properties.
+The language allows describing a robotic system's properties in a somewhat simple and intuitive way, while at the same time still being able to express relevant temporal and positional arguments between robots and objects in the simulation. The language is supported by a compiler. The compiler translates the language to a monitoring mechanism. In this way, if a robotic system doesn't follow the properties defined by the user writing in the language, during execution, the compiler detects an anomaly and makes the analysis that the behavior of the robot is not consistent. This is possible because in simulation the developers can take advantage of real values of objects' attributes to compare with what the robot system perceives.
 
-The language allows describing a robotic system's properties in a somewhat simple and intuitive way, while at the same time still being able to express relevant temporal and positional arguments between robots and objects in the simulation. The language is supported by a compiler. The compiler translates the language to a monitoring mechanism. In this way, if a robotic system doesn't follow the properties defined by the user writing in the language, during execution, the compiler detects an anomaly and makes the analysis that the behavior of the robot is not consistent.
+*TODO structure*
 
-\section{Language}
+\section{Motivational Example}
+- example of a scenario you want to test a robotic system
+- example of the language 
+- explanation of each property and link W / What you wanted to test
+
+
+\section{Approach}
+
+- diagram
+- explanation
+
+*The specified properties are compiled and a python file is generated which is capable of running as a ROS node. The node listens to relevant topics and performs the computations to verify the specified properties.*
+
+
+\section{Language Features}
 
 The domain-specific language relies on an adaptation of linear temporal logic to express temporal relations of and between simulation objects.
 
@@ -71,30 +85,30 @@ The domain-specific language also has shortcuts to express the absolute values o
 \subsection{Temporal Keywords}
 
 \begin{itemize}
-\item always X (X has to hold on the entire subsequent path);
-\item never X (X never holds on the entire subsequent path);
-\item eventually X (X eventually has to hold, somewhere on the subsequent path);
-\item after X, Y (after the event X is observed, Y has to hold on the entire subsequent path);
-\item until X, Y (X holds at the current or future position, and Y has to hold until that position. At that position, Y does not have to hold anymore);
-\item after\_until X, Y, Z (after the event X is observed, Z has to hold on the entire subsequent path up until Y happens, at that position Z does not have to hold anymore);
+\item {\bfseries always X} - X has to hold on the entire subsequent path;
+\item {\bfseries never X} - X never holds on the entire subsequent path;
+\item {\bfseries eventually X} - X eventually has to hold, somewhere on the subsequent path;
+\item {\bfseries after X, Y} - after the event X is observed, Y has to hold on the entire subsequent path;
+\item {\bfseries until X, Y} - X holds at the current or future position, and Y has to hold until that position. At that position, Y does not have to hold anymore;
+\item {\bfseries after\_until X, Y, Z} - after the event X is observed, Z has to hold on the entire subsequent path up until Y happens, at that position Z does not have to hold anymore;
 \end{itemize}
 
 \noindent It is also possible to reference previous variable states:
 \begin{equation}
-@\{X, -y\}
+    @\{X, -y\}
 \end{equation}
 This will represent the value of the variable X in the point in time -y.
 
 \subsection{Useful Predicates}
 
 \begin{itemize}
-\item X.position (The position of the robot in the simulation);
-\item X.position.y (The position in the y axis of the robot in the simulation. Also works for x and z);
-\item X.distance.Y (The absolute distance between two objects in the simulation. For the x and y axis);
-\item X.distanceZ.Y (The absolute distance between two objects in the simulation. For the x, y, and z axis);
-\item X.velocity (The velocity of an object in the simulation. This refers to linear velocity);
-\item X.velocity.x (The velocity in the x axis of an object in the simulation. This refers to linear velocity);
-\item X.localization\_error - The difference between the robot's perception of its position and the actual position in the simulation;
+\item {\bfseries X.position} - The position of the robot in the simulation;
+\item {\bfseries X.position.y} - The position in the y axis of the robot in the simulation. Also works for x and z;
+\item {\bfseries X.distance.Y} - The absolute distance between two objects in the simulation. For the x and y axis;
+\item {\bfseries X.distanceZ.Y} - The absolute distance between two objects in the simulation. For the x, y, and z axis;
+\item {\bfseries X.velocity} - The velocity of an object in the simulation. This refers to linear velocity;
+\item {\bfseries X.velocity.x} - The velocity in the x axis of an object in the simulation. This refers to linear velocity;
+\item {\bfseries X.localization\_error} - The difference between the robot's perception of its position and the actual position in the simulation;
 \end{itemize}
 
 \subsection{Examples}
@@ -115,13 +129,17 @@ after\_until robot.distance.stop\_sign < 1, robot.distance.stop\_sign > 1, event
 
 (Translating to a more human language we are saying that, after the robot distance to the stop\_sign is below the value of 1 in the simulator, up until the distance is again above 1, the robot velocity will eventually be equal to 0)
 
-\section{Monitoring}
 
-The specified properties are compiled and a python file is generated which is capable of running as a ROS node. The node listens to relevant topics and performs the computations to verify the specified properties.
+\section{Related Work}
+if you have space otherwise it is included in the Introduction
 
-*Should I go into specifics about generated file? (subscribers, properties, etc..)? That I get the real information from the simulator topic "gazebo/model\_states"?*
 
-*Should I show an example with images?*
+\section{Conclusion}
+- brief intro to robotics and Ros ?
+- problems with testing
+- presented your approach
+- hopes to solve issues x,y,z
+- possibe Future work ?
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
