@@ -41,7 +41,7 @@ Carnegie Mellon University, Pittsburgh, PA}
 \begin{abstract}
     Robotic systems are critical in today's society, a potential failure in a robot may have extraordinary costs, not only financial, but can also cost lives.
     Current practices in robot testing are vast and involve methods like simulation, log checking, or field testing. However current practices often require human visualization to determine the correctness of a given behavior. Automating this analysis can not only relieve the burden from a high-skilled engineer, but also allow for massive parallel executions of tests, that can detect behavioral faults in the robots that would otherwise not be found due to human error or lack of time.
-    We have developed a domain-specific language to specify properties of robotic systems in ROS. Specifications written by developers in this language are compiled to a monitor ROS (Robot Operating System) module, that detects violations of those properties in runtime. We have used this language to express the temporal and positional properties of robots, and we have automated the monitoring of some behavioral violations of robots in relation to their state or events during a simulation.
+    We have developed a DSL (domain-specific language) to specify properties of robotic systems in ROS. Specifications written by developers in this language are compiled to a monitor ROS (Robot Operating System) module, that detects violations of those properties in runtime. We have used this language to express the temporal and positional properties of robots, and we have automated the monitoring of some behavioral violations of robots in relation to their state or events during a simulation.
 
 \keywords{Robotics  \and Domain-specific language \and Runtime Monitoring \and Error detection.}
 \end{abstract}
@@ -52,28 +52,51 @@ Carnegie Mellon University, Pittsburgh, PA}
 
 Robotics already have a great impact on our current society. Due to their broad practicality, the quality of software used by robots should be of extreme importance to us. Robotic Systems are non-deterministic, mainly because robots interact directly with the real world. A sensor can return imprecise values since the environment itself can be very hard to predict. As a result, verifying whether a task or movement is correct can be difficult for a system to conceive.
 
-ROS is an open-source framework with a vast collection of libraries, interfaces, and tools that help build robot software. ROS provides an abstraction between hardware and software that helps developers easily connect the different robot components throught what are called "topics" and "messages".
+ROS is an open-source framework with a vast collection of libraries, interfaces, and tools that help build robot software. ROS provides an abstraction between hardware and software that helps developers easily connect the different robot components through what are called "topics" and "messages".
 
-Current practices in testing robot software mainly involve, field testing, simulation testing, and logs checking and require a human to analyze the behavior of the robot to determine whether the behavior is correct.
+Current practices in testing robot software mainly involve field testing, simulation testing, and log checking and require a human to analyze the behavior of the robot to determine whether the behavior is correct.
 
-The objective of this work is showing how a domain-specific language can be used to specify temporal and positional properties of robotic systems and monitor the simulation components associated with these properties.
+The objective of this work~\cite{github_repo} is to show how a domain-specific language can be used to specify temporal and positional properties of robotic systems and monitor the simulation components associated with these properties.
 
 The language allows describing a robotic system's properties in a somewhat simple and intuitive way, while at the same time still being able to express relevant temporal and positional arguments between robots and objects in the simulation. The language is supported by a compiler. The compiler translates the language to a monitoring mechanism. In this way, if a robotic system doesn't follow the properties defined by the user writing in the language, during execution, the compiler detects an anomaly and makes the analysis that the behavior of the robot is not consistent. This is possible because in simulation the developers can take advantage of real values of objects' attributes to compare with what the robot system perceives.
 
-*TODO structure*
+*Mention related work?*
+
+The paper starts with a motivational example of a hypothetical scenario, followed by an overall explanation of the approach, afterward is presented the language in more detail, and finally, a conclusion on the work is presented.
 
 \section{Motivational Example}
-- example of a scenario you want to test a robotic system
-- example of the language 
-- explanation of each property and link W / What you wanted to test
 
+If a developer of an autonomous moving car wanted to express that the robot always needs to stop when going near a stop sign, he could write something like:
+
+\vspace{3mm}
+
+\texttt{after\_until robot.distance.stop\_sign < 1, robot.distance.stop\_sign > 1, eventually robot.velocity == 0}
+
+\vspace{3mm}
+
+Translating to a more human language we are saying that, after the robot's distance to the stop-sign is below the value of 1 in the simulator, up until the distance is again above 1, the robot velocity will eventually be equal to 0.
+
+The specified property is compiled and a python file is generated which is capable of running as a ROS node. The node listens to relevant topics and performs the computations to verify the specified property.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{error.eps}
+\caption{Example of the displayed error when the robot doesn't stop at the stop sign.} \label{fig1}
+\end{figure}
 
 \section{Approach}
 
-- diagram
-- explanation
+\begin{figure}
+\includegraphics[width=\textwidth]{diagram.eps}
+\caption{Flow of the process for runtime verification.} \label{fig2}
+\end{figure}
 
-*The specified properties are compiled and a python file is generated which is capable of running as a ROS node. The node listens to relevant topics and performs the computations to verify the specified properties.*
+The diagram in Fig.2 represents the flow of the process of monitoring a robotic system. 
+
+First, there is a need of writing in the DSL the properties of the robotic system one wants to monitor in a .txt file extension.
+
+Afterward, the specified properties need to be compiled and a python file is generated which is capable of running as a ROS node.
+
+Finally, the node can be run whenever testing the system and will listen to relevant topics and perform the computations needed to verify the specified properties.
 
 
 \section{Language Features}
@@ -113,122 +136,32 @@ This will represent the value of the variable X in the point in time -y.
 
 \subsection{Examples}
 
-As an example, we specify two properties of an arbitary autonomous driving robot:
+As an example, we specify two properties for an arbitrary robotic system of autonomous driving robots:
 
 \subsubsection{Property One}:
 
-The robot velocity will never be above 2 in the duration of the simulation;
+The robot velocity will never be above 2 for the duration of the simulation;
 
-never robot.velocity > 2.0
+\vspace{3mm}
+
+\texttt{never robot.velocity > 2.0}
 
 \subsubsection{Property Two}:
 
-The robot always needs to stop when coming near a stop sign;
+The first robot being above 1 velocity implies that the second robot is at least at 0.8 distance from the first robot. Up until they reach a certain location;
 
-after\_until robot.distance.stop\_sign < 1, robot.distance.stop\_sign > 1, eventually robot.velocity == 0
+\vspace{3mm}
 
-(Translating to a more human language we are saying that, after the robot distance to the stop\_sign is below the value of 1 in the simulator, up until the distance is again above 1, the robot velocity will eventually be equal to 0)
-
-
-\section{Related Work}
-if you have space otherwise it is included in the Introduction
+\texttt{until (robot1.position.x > 45 and robot1.position.y > 45), always (robot1.velocity > 1 implies robot2.distance.robot1 > 0.8)}
 
 
 \section{Conclusion}
-- brief intro to robotics and Ros ?
-- problems with testing
-- presented your approach
-- hopes to solve issues x,y,z
-- possibe Future work ?
+
+Robotics and ROS usage in specific has been constantly growing. With more robot software the need for and the probability of errors not found by human-in-the-loop testing will also grow.
+
+With the proposed approach we hope to illustrate how a DSL can potentially help automate the monitoring of unwanted behaviors in robotic systems.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\section{First Section}
-%\subsection{A Subsection Sample}
-%Please note that the first paragraph of a section or subsection is
-%not indented. The first paragraph that follows a table, figure,
-%equation etc. does not need an indent, either.
-
-%Subsequent paragraphs, however, are indented.
-
-%\subsubsection{Sample Heading (Third Level)} Only two levels of
-%headings should be numbered. Lower level headings remain unnumbered;
-%they are formatted as run-in headings.
-
-%\paragraph{Sample Heading (Fourth Level)}
-%The contribution should contain no more than four levels of
-%headings. Table~\ref{tab1} gives a summary of all heading levels.
-
-%\begin{table}
-%\caption{Table captions should be placed above the
-%tables.}\label{tab1}
-%\begin{tabular}{|l|l|l|}
-%\hline
-%Heading level &  Example & Font size and style\\
-%\hline
-%Title (centered) &  {\Large\bfseries Lecture Notes} & 14 point, bold\\
-%1st-level heading &  {\large\bfseries 1 Introduction} & 12 point, bold\\
-%2nd-level heading & {\bfseries 2.1 Printing Area} & 10 point, bold\\
-%3rd-level heading & {\bfseries Run-in Heading in Bold.} Text follows & 10 point, bold\\
-%4th-level heading & {\itshape Lowest Level Heading.} Text follows & 10 point, italic\\
-%\hline
-%\end{tabular}
-%\end{table}
-
-
-%\noindent Displayed equations are centered and set on a separate
-%line.
-%\begin{equation}
-%x + y = z
-%\end{equation}
-%Please try to avoid rasterized images for line-art diagrams and
-%schemas. Whenever possible, use vector graphics instead (see
-%Fig.~\ref{fig1}).
-
-%\begin{figure}
-%includegraphics[width=\textwidth]{fig1.eps}
-%\caption{A figure caption is always placed below the illustration.
-%Please note that short captions are centered, while long ones are
-%justified by the macro package automatically.} \label{fig1}
-%\end{figure}
-
-%\begin{theorem}
-%This is a sample theorem. The run-in heading is set in bold, while
-%the following text appears in italics. Definitions, lemmas,
-%propositions, and corollaries are styled the same way.
-%\end{theorem}
-%
-% the environments 'definition', 'lemma', 'proposition', 'corollary',
-% 'remark', and 'example' are defined in the LLNCS documentclass as well.
-%
-%\begin{proof}
-%Proofs, examples, and remarks have the initial word in italics,
-%while the following text appears in normal font.
-%\end{proof}
-%For citations of references, we prefer the use of square brackets
-%and consecutive numbers. Citations using labels or the author/year
-%convention are also acceptable. The following bibliography provides
-%a sample reference list with entries for journal
-%articles~\cite{ref_article1}, an LNCS chapter~\cite{ref_lncs1}, a
-%book~\cite{ref_book1}, proceedings without editors~\cite{ref_proc1},
-%and a homepage~\cite{ref_url1}. Multiple citations are grouped
-%\cite{ref_article1,ref_lncs1,ref_book1},
-%cite{ref_article1,ref_book1,ref_proc1,ref_url1}.
-
-%\subsubsection{Acknowledgements} Please place your acknowledgments at
-%the end of the paper, preceded by an unnumbered run-in heading (i.e.
-%3rd-level heading).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%
-% ---- Bibliography ----
-%
-% BibTeX users should specify bibliography style 'splncs04'.
-% References will then be sorted and formatted in the correct style.
-%
-% \bibliographystyle{splncs04}
-% \bibliography{mybibliography}
-%
 \begin{thebibliography}{8}
 %\bibitem{ref_article1}
 %Author, F.: Article title. Journal \textbf{2}(5), 99--110 (2016)
@@ -246,8 +179,7 @@ if you have space otherwise it is included in the Introduction
 %Author, A.-B.: Contribution title. In: 9th International Proceedings
 %on Proceedings, pp. 1--2. Publisher, Location (2010)
 
-%\bibitem{ref_url1}
-%LNCS Homepage, \url{http://www.springer.com/lncs}. Last accessed 4
-%Oct 2017
+\bibitem{github_repo}
+GitHub repository of the work, \url{https://ricardocajo.github.io/error-monitor-ros-gazebo}
 \end{thebibliography}
 \end{document}
