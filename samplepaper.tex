@@ -53,23 +53,14 @@ Carnegie Mellon University, Pittsburgh, PA}
 %
 \section{Introduction}
 
-Robotics already have a significant impact on our current society. Due to their broad practicality, the quality of software running on robots should be extremely important to us. Robotic Systems are non-deterministic, mainly because robots interact directly with the real world. Testing software in such environments is complex, as there are many variables that can change, and verifying the sucess of a task or movement may not be possible from the robot's perspective, and external monitoring may be required.
+Robotics already have a significant impact on our current society. Due to their broad practicality, the quality of software running on robots should be extremely important to us. Robotic Systems are non-deterministic, mainly because robots interact directly with the real world. Testing software in such environments is complex, as there are many variables that can change, and verifying the success of a task or movement may not be possible from the robot's perspective, and external monitoring may be required.
 
 The Robot Operating System (ROS)~\cite{quigley2009ros} is an open-source framework with a vast collection of libraries, interfaces, and tools that were designed to help build robot software. ROS provides an abstraction between hardware and software that helps developers easily connect the different robot components through messages sent through communication channels (\textit{topics}).
 
 Current practices in testing robot software mainly involve field testing, simulation testing, and log checking and require a human to analyze the behavior of the robot to determine whether the behavior is correct.
 
-\paulo{Perhaps the RW could go in here to save space, in a paragraph}
+Some research on the importance of this type of testing~\cite{zizyte2021safetyauto} and the difficulties of implementing it~\footnote{\url{https://rose-workshops.github.io/files/rose2022/papers/RoSE22\_paper\_4.pdf}} already exists. As well as some tools that already try to implement similar runtime verification concepts like ROSRV~\cite{huang2014rosrv} or ROSMonitoring~\cite{ferrando2020rosmonitoring}.
 
-% https://link.springer.com/chapter/10.1007/978-3-319-11164-3_20
-
-% https://link.springer.com/chapter/10.1007/978-3-030-63486-5_40
-
-% https://link.springer.com/book/10.1007/978-3-319-67531-2?noAccess=true
-
-% https://www.human-competitive.org/sites/default/files/a_search-based_framework_for_automatic_generation_of_testing_environments_0.pdf
-
-% https://clairelegoues.com/papers/zizyte21dsn.pdf
 
 % https://rose-workshops.github.io/files/rose2022/papers/RoSE22_paper_4.pdf
 
@@ -83,12 +74,12 @@ We have developed a compiler for the language that generates a ROS module that m
 Let us consider an autonomous car developer wanting to express that its system always stops when near a stop sign. The following example presents a property defined in the language that specifies the intended behavior of the developer.
 
 
-\vspace{3mm}
+\vspace{2mm}
 \texttt{after\_until robot.distance.stop\_sign < 1, robot.distance.stop\_sign > 1, eventually robot.velocity == 0}
-\vspace{3mm}
+\vspace{2mm}
 
 \textit{Translating into natural language, the property states in the first section that after the robot's distance to the stop-sign is below the value of 1 in the simulator, and in the second section that up until the distance is again above 1, then in the third section the robot velocity will eventually be equal to 0.}
-\vspace{3mm}
+\vspace{2mm}
 
 The specified property is compiled to a Python file, which is capable of running as a ROS node. The node listens only to relevant topics and performs the computations to verify the specified property.
 
@@ -146,7 +137,7 @@ In order to relate robot components with the simulation, the developer can decla
 
 \textit{The variable robot\_position was declared with the type Odometry.pose.pose.position and is linked to the topic /odom;}
 
-\vspace{3mm}
+\vspace{2mm}
 
 \texttt{decl robot\_position /odom Odometry.pose.pose.position}
 
@@ -155,7 +146,7 @@ In order to relate robot components with the simulation, the developer can decla
 
 There are a set of specific topics that can be modeled for the robot, like \textit{position} or \textit{velocity}. These will be used by the compiler to call specific functions that need this information from the robot's perspective.
 
-\vspace{3mm}
+\vspace{2mm}
 
 \texttt{model robot1:}
 
@@ -163,7 +154,7 @@ There are a set of specific topics that can be modeled for the robot, like \text
 
 \texttt{    ;}
 
-\vspace{3mm}
+\vspace{2mm}
 
 \texttt{never robot1.localization error > 0.002}
 
@@ -180,7 +171,7 @@ Some robots have a maximum safe speed at which they can move. Sometimes this lim
 
 \textit{The robot velocity will never be above 2 for the duration of the simulation;}
 
-\vspace{3mm}
+\vspace{2mm}
 
 \texttt{never robot.velocity > 2.0}
 
@@ -188,7 +179,7 @@ Some robots have a maximum safe speed at which they can move. Sometimes this lim
 
 The first robot being above 1 velocity implies that the second robot is at least at 0.8 distance from the first robot. Up until they reach a certain location;
 
-\vspace{3mm}
+\vspace{2mm}
 
 \texttt{until (robot1.position.x > 45 and robot1.position.y > 45), always (robot1.velocity > 1 implies robot2.distance.robot1 > 0.8)}
 
@@ -197,13 +188,13 @@ The first robot being above 1 velocity implies that the second robot is at least
 
 After a drone is at a certain altitude both rotors always have the same velocity up until the drone decreases to a certain altitude
 
-\vspace{3mm}
+\vspace{2mm}
 
 \texttt{decl rotor1\_vel /drone\_mov/rotor1 Vector3.linear.x}
 
 \texttt{decl rotor2\_vel /drone\_mov/rotor2 Vector3.linear.x}
 
-\vspace{3mm}
+\vspace{2mm}
 
 \texttt{after\_until drone.position.z > 5, drone.position.z < 5, rotor1\_vel == rotor2\_vel}
 
@@ -213,22 +204,6 @@ After a drone is at a certain altitude both rotors always have the same velocity
 
 The proposed approach can express some interesting scenarios that developers care about. We are expanding our examples to include bugs found~\footnote{\url{https://github.com/robust-rosin/robust}} in real work projects and from a survey, we are conducting with expert developers. Our development is available online~\footnote{\url{https://ricardocajo.github.io/error-monitor-ros-gazebo}} for those that want to experiment with it. We also intend on expanding the primitives with more simulator information or with the possibility of integrating sensors for supporting field testing in alternative to simulation.
 
-
-%\begin{thebibliography}{8}
-%\bibitem{ref_article1}
-%Author, F.: Article title. Journal \textbf{2}(5), 99--110 (2016)
-
-%\bibitem{ref_lncs1}
-%Author, F., Author, S.: Title of a proceedings paper. In: Editor,
-%F., Editor, S. (eds.) CONFERENCE 2016, LNCS, vol. 9999, pp. 1--13.
-%Springer, Heidelberg (2016). \doi{10.10007/1234567890}
-
-%\bibitem{robust_repo}
-%GitHub repository of ROBUST: ROS Bug Study, \url{https://github.com/robust-rosin/robust}
-
-%\bibitem{github_repo}
-%GitHub repository of our work, \url{https://ricardocajo.github.io/error-monitor-ros-gazebo}
-%\end{thebibliography}
 
 \bibliographystyle{ieeetr}
 \bibliography{references}
