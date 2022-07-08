@@ -41,7 +41,7 @@ Carnegie Mellon University, Pittsburgh, PA}
 \begin{abstract}
     Robotic systems are critical in today's society. A potential failure in a robot may have extraordinary costs, not only financial, but can also cost lives.
     Current practices in robot testing are vast and involve methods like simulation, log checking, or field testing. However, current practices often require human monitoring to determine the correctness of a given behavior. Automating this analysis can not only relieve the burden from a high-skilled engineer, but also allow for massive parallel executions of tests, that can detect behavioral faults in the robots that would otherwise not be found due to human error or lack of time.
-    We have developed a DSL (domain-specific language) to specify properties of robotic systems in ROS. Specifications written by developers in this language are compiled to a monitor ROS (Robot Operating System) module, that detects violations of those properties in runtime. We have used this language to express the temporal and positional properties of robots, and we have automated the monitoring of some behavioral violations of robots in relation to their state or events during a simulation.
+    We have developed a DSL (domain-specific language) to specify the properties of robotic systems in ROS. Specifications written by developers in this language are compiled to a monitor ROS (Robot Operating System) module, that detects violations of those properties in runtime. We have used this language to express the temporal and positional properties of robots, and we have automated the monitoring of some behavioral violations of robots in relation to their state or events during a simulation.
 
 \keywords{Robotics  \and Domain-specific language \and Runtime Monitoring \and Error detection.}
 \end{abstract}
@@ -50,19 +50,19 @@ Carnegie Mellon University, Pittsburgh, PA}
 %
 \section{Introduction}
 
-Robotics already have a great impact on our current society. Due to their broad practicality, the quality of software running on robots should be of extreme importance to us. Robotic Systems are non-deterministic, mainly because robots interact directly with the real world. Testing software in such environments is difficult, as there are many variables that can change, and verifying if a task or movement was successful may not be possible from the robots perspective, and external monitoring may be required.
+Robotics already have a great impact on our current society. Due to their broad practicality, the quality of software running on robots should be of extreme importance to us. Robotic Systems are non-deterministic, mainly because robots interact directly with the real world. Testing software in such environments is difficult, as there are many variables that can change, and verifying if a task or movement was successful may not be possible from the robot's perspective, and external monitoring may be required.
 
-ROS is an open-source framework with a vast collection of libraries, interfaces, and tools that were design to help build robot software. ROS provides an abstraction between hardware and software that helps developers easily connect the different robot components through messages sent through communication channels (\textit{topics}).
+ROS is an open-source framework with a vast collection of libraries, interfaces, and tools that were designed to help build robot software. ROS provides an abstraction between hardware and software that helps developers easily connect the different robot components through messages sent through communication channels (\textit{topics}).
 
 Current practices in testing robot software mainly involve field testing, simulation testing, and log checking and require a human to analyze the behavior of the robot to determine whether the behavior is correct.
 
-The goal of our work is to provide developers with a way to automatically verify temporal and positional properties of their robotic systems. Due to the cyber-physical nature of the experiments, we propose a domain-specific language for developers to express their relevant properties and a tool that compiles properties expressed in that language to a monitor component that can be used in simulation to detect violations of those properties.
+The goal of our work is to provide developers with a way to automatically verify the temporal and positional properties of their robotic systems. Due to the cyber-physical nature of the experiments, we propose a domain-specific language for developers to express their relevant properties and a tool that compiles properties expressed in that language to a monitor component that can be used in simulation to detect violations of those properties.
 
 While our language is based on Linear Temporal Logic (LTL), it was designed from the point of view of ROS developers, allowing properties to reason about native ROS constructs, like \textit{topics}, \textit{messages} and simulation information. Thus, it is possible to express properties that relate the internal information of the system with the corresponding information in the simulator.
 
 We have developed a compiler for this language that generates a ROS module that can be loaded in an existing project. This module will listen to relevant information from both the component and the simulator, and if a violation of any property occurs, it provides a detailed error message to the user.
 
-The paper starts with a motivational example of a hypothetical scenario, followed by a more in detail specification of the domain-specific language, afterward some examples of the DSL usage are shown, and finally, a conclusion on the work is presented.
+The paper starts with a motivational example of a hypothetical scenario, followed by a more in detail specification of the domain-specific language, afterward, some examples of the DSL usage are shown, and finally, a conclusion on the work is presented.
 
 \section{Motivational Example}
 
@@ -98,7 +98,7 @@ The domain-specific language relies on an adaptation of LTL to express temporal 
 
 \subsection{Temporal Keywords}
 
-We consider not only LTL basic operators, but also some common shortcuts for useful combinations of such operators, like \textit{after\_until}, used in the example:
+We consider not only LTL basic operators but also some common shortcuts for useful combinations of such operators, like \textit{after\_until}, used in the example:
 
 \begin{itemize}
 \item {\bfseries always X} - X has to hold on the entire subsequent path;
@@ -139,7 +139,7 @@ In order to relate robot components with the simulation, the developer can decla
 
 \subsection{Model robots}
 
-There are a set of specific topics that can be modeled by robot, like \textit{position} or \textit{velocity}. These will be used by the compiler to call specific functions that need this information from the robot perspective.
+There are a set of specific topics that can be modeled for the robot, like \textit{position} or \textit{velocity}. These will be used by the compiler to call specific functions that need this information from the robot's perspective.
 
 \vspace{3mm}
 
