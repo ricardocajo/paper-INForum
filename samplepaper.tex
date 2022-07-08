@@ -75,9 +75,8 @@ Current practices in testing robot software mainly involve field testing, simula
 
 This work aims to provide developers with a way to verify their robotic systems' temporal and positional properties automatically. We propose the introduction of a domain-specific language for developers to express their relevant properties. The given properties are compiled into monitors that can be used in simulation to ensure the correctness of the system. The language was designed from the point of view of ROS developers and tries to abstract the underlying Linear Temporal Logic (LTL) system, allowing properties to reason about native ROS constructs, like \textit{topics}, \textit{messages} and simulation information. Thus, it is possible to express properties that relate the internal information of the system with the corresponding information in the simulator.
 
-We have developed a compiler for the language that generates a ROS module that monitors the existing project. The module listens to relevant information from both the component \paulo{both the component? What component are we referring in here?} and the simulator, and if a violation of any property occurs, it provides a detailed error message to the user.
+We have developed a compiler for the language that generates a ROS module that monitors an existing project. The module listens to relevant information from both the robot's components and the simulator, and if a violation of any property occurs, it provides a detailed error message to the user.
 
-%The paper starts with a motivational example of a hypothetical scenario, followed by a more in detail specification of the domain-specific language, afterward, some examples of the DSL usage are shown, and finally, a conclusion on the work is presented.
 
 \section{Motivational Example}
 
@@ -86,12 +85,12 @@ Let us consider an autonomous car developer wanting to express that its system a
 
 \vspace{3mm}
 \texttt{after\_until robot.distance.stop\_sign < 1, robot.distance.stop\_sign > 1, eventually robot.velocity == 0}
-\paulo{this could perhaps be described as a equation, and then ref the equation in the previous and the next paragraph}
 \vspace{3mm}
 
-\paulo{You need to explain each part of the property. What is the first part of the after\_until, the second part of the distance being $>$ 1, and the eventually.}
+\textit{Translating into natural language, the property states in the first section that after the robot's distance to the stop-sign is below the value of 1 in the simulator, and in the second section that up until the distance is again above 1, then in the third section the robot velocity will eventually be equal to 0.}
+\vspace{3mm}
 
-Translating into natural language, the property states that after the robot's distance to the stop-sign is below the value of 1 in the simulator, up until the distance is again above 1, the robot velocity will eventually be equal to 0.The specified property is compiled to a Python file, which is capable of running as a ROS node. The node listens only to relevant topics and performs the computations to verify the specified property.
+The specified property is compiled to a Python file, which is capable of running as a ROS node. The node listens only to relevant topics and performs the computations to verify the specified property.
 
 \begin{figure}
 \includegraphics[width=\textwidth]{error.eps}
@@ -101,20 +100,17 @@ Translating into natural language, the property states that after the robot's di
 The flow of the process of monitoring a robotic system is described as follows:
 
 \begin{enumerate}[label=(\roman*)]
-    \item \textbf{\paulo{small "title" here: something that describes this process}:} the developer describes in the language the properties of the robotic system one wants to monitor in a \texttt{.txt} file extension.
-    \item \textbf{\paulo{small "title" here: something that describes this process}:} The specified properties are compiled and a python file is generated capable of running as a ROS node.
-    \item \textbf{\paulo{small "title" here: something that describes this process}:} The node can be run whenever testing the system and will listen to relevant topics~\paulo{this is correct but raises some questions. What are the relevant topics? How does it decide which ones are relevant? the reader might be a bit confused. We don't have space to go into details, so if there is a way to tell the reader in a high level way, perhaps a reword is all that is needed} and perform the computations needed to verify the specified properties.
+    \item \textbf{Property formalization:} the developer describes in the language the properties of the robotic system one wants to monitor in a \texttt{.txt} file extension.
+    \item \textbf{Compilation:} The specified properties are compiled and a python file is generated capable of running as a ROS node.
+    \item \textbf{Monitoring:} The node can be run whenever testing the system and will listen to pertinent topics and perform the computations needed to verify the specified properties.
 \end{enumerate}
 
 
 \section{Specification Language for Robotics Properties}
 
-The domain-specific language relies on an adaptation of LTL to express temporal relations of and between simulation objects. The domain-specific language also has shortcuts to express the absolute values of certain useful concepts of objects in a simulation. \paulo{why do you have these shortcuts? The expectation is that these will somehow help the user, make the language more usable?}
-
-\paulo{We need something here that links both subsections: This section presents the X, Y and Z that represent specificities of the language. Subsection 3.1 describes the process in which X through X1 and X2 is able to .... Subsection 3.2 enumerates Y, etc, etc...}
+The domain-specific language relies on an adaptation of LTL to express temporal relations of and between simulation objects (section 3.1). Has shortcuts to express the absolute values of certain useful concepts of objects in a simulation in order to make the language usable (section 3.2). Allows for the declaration of robots relevant \textit{topics} (section 3.3). Allows to model a whole robot specific \textit{topics} (section 3.4)
 
 \subsection{Temporal Keywords}
-\paulo{add labels to subsecs and secs}
 
 We consider not only LTL basic operators but also some common shortcuts for useful combinations of such operators, like \textit{after\_until}, used in the previous example.
 
@@ -215,7 +211,7 @@ After a drone is at a certain altitude both rotors always have the same velocity
 
 \section{Conclusion}
 
-The proposed approach can express some interesting scenarios that developers care about~\paulo{This is a dangerous sentence imo, because you are currently conducting the survey to know what the interesting scenarios that developers care about}. We are expanding our examples to include bugs found~\footnote{\url{https://github.com/robust-rosin/robust}} in real work projects and from a survey, we are conducting with expert developers. Our development is available online~\footnote{\url{https://ricardocajo.github.io/error-monitor-ros-gazebo}} for those that want to experiment with it. We also intend on expanding the primitives with more simulator information or with the possibility of integrating sensors for supporting field testing in alternative to simulation.
+The proposed approach can express some interesting scenarios that developers care about. We are expanding our examples to include bugs found~\footnote{\url{https://github.com/robust-rosin/robust}} in real work projects and from a survey, we are conducting with expert developers. Our development is available online~\footnote{\url{https://ricardocajo.github.io/error-monitor-ros-gazebo}} for those that want to experiment with it. We also intend on expanding the primitives with more simulator information or with the possibility of integrating sensors for supporting field testing in alternative to simulation.
 
 
 %\begin{thebibliography}{8}
