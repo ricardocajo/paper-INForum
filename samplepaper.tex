@@ -2,71 +2,57 @@
 
 \usepackage{listings}
 \usepackage{enumitem}
-%
+
 \usepackage[T1]{fontenc}
 
 \usepackage{graphicx}
 
 \input{packages}
-% Used for displaying a sample figure. If possible, figure files should
-% be included in EPS format.
-%
-% If you use the hyperref package, please uncomment the following two lines
-% to display URLs in blue roman font according to Springer's eBook style:
-%\usepackage{color}
-%\renewcommand\UrlFont{\color{blue}\rmfamily}
-%
+
 \begin{document}
-%
+
 \title{Formalization and Runtime Verification of Invariants for
 Robotic Systems}
-%
-%\titlerunning{Abbreviated paper title}
-% If the paper title is too long for the running head, you can set
-% an abbreviated paper title here
-%
+
 \author{Ricardo Cordeiro\inst{1} \and
 %Paulo Canelas\inst{1,2} \and
 Alcides Fonseca\inst{1} \and
 Christopher S. Timperley\inst{2}}
-%\orcidID{0000-0002-8959-1702}
-%
+
 \authorrunning{Cordeiro et al.}
-% First names are abbreviated in the running head.
-% If there are more than two authors, 'et al.' is used.
-%
+
 \institute{Faculdade de Ciências da Universidade de Lisboa,
 Lisboa, Portugal \and
 Carnegie Mellon University, Pittsburgh, PA}
-%
-\maketitle              % typeset the header of the contribution
-%
+
+\maketitle
+
 \begin{abstract}
-    Robotic systems are critical in today's society. A potential failure in a robot may have extraordinary costs, not only financial, but can also cost lives.
-    Current practices in robot testing are vast and involve methods like simulation, log checking, or field testing. However, current practices often require human monitoring to determine the correctness of a given behavior. Automating this analysis can not only relieve the burden from a high-skilled engineer, but also allow for massive parallel executions of tests, that can detect behavioral faults in the robots that would otherwise not be found due to human error or lack of time.
-    We have developed a Domain Specific Language to specify the properties of robotic systems in the Robot Operating System (ROS). Specifications written by developers in this language are compiled to a monitor ROS module, that detects violations of those properties in runtime. We have used this language to express the temporal and positional properties of robots, and we have automated the monitoring of some behavioral violations of robots in relation to their state or events during a simulation.
+    Robotic systems are critical in today's society. A potential failure in a robot may have extraordinary costs, not only financial but can also cost lives.
+    Current practices in robot testing are vast and involve methods like simulation, log checking, or field testing. However, current practices often require human monitoring to determine the correctness of a given behavior. Automating this analysis can not only relieve the burden from a high-skilled engineer but also allow for massive parallel executions of tests that can detect behavioral faults in the robots. These faults could otherwise not be found due to human error or a lack of time.
+    We have developed a Domain Specific Language to specify the properties of robotic systems in the Robot Operating System (ROS). Developer written specifications in this language compile to a monitor ROS module that detects violations of those properties in runtime. We have used this language to express the temporal and positional properties of robots, and we have automated the monitoring of some behavioral violations of robots in relation to their state or events during a simulation.
 
 \keywords{Robotics \and Domain-specific language \and Runtime Monitoring \and Error detection.}
 \end{abstract}
-%
-%
-%
+
+
 \section{Introduction}
 
-Robotics already have a significant impact on our current society. Due to their broad practicality, the quality of software running on robots should be extremely important to us. Robotic Systems are non-deterministic, mainly because robots interact directly with the real world. Testing software in such environments is complex, as there are many variables that can change, and verifying the success of a task or movement may not be possible from the robot's perspective, and external monitoring may be required.
+Robotics already have a significant impact on our current society. Due to their broad practicality, the quality of software running on robots should be extremely important to us. However, robotic Systems are non-deterministic, mainly because robots interact directly with the real world. Testing software in such environments is complex, as many variables can change, and verifying the success of a task or movement may not be possible from the robot's perspective, and external monitoring may be required.
 
-The Robot Operating System (ROS)~\cite{quigley2009ros} is an open-source framework with a vast collection of libraries, interfaces, and tools that were designed to help build robot software. ROS provides an abstraction between hardware and software that helps developers easily connect the different robot components through messages sent through communication channels (\textit{topics}).
+The Robot Operating System (ROS)~\cite{quigley2009ros} is an open-source framework with a vast collection of libraries, interfaces, and tools designed to help build robot software. ROS provides an abstraction between hardware and software that helps developers easily connect the different robot components through messages sent through communication channels (\textit{topics}).
 
-Current practices in testing robot software mainly involve field testing, simulation testing, and log checking and require a human to analyze the behavior of the robot to determine whether the behavior is correct.
+Current practices in testing robot software mainly involve field testing, simulation testing, and log checking and require a human to analyze the robot's behavior to determine whether the behavior is correct.
 
-Some research on the importance of this type of testing~\cite{zizyte2021safetyauto} and the difficulties of implementing it~\footnote{\url{https://rose-workshops.github.io/files/rose2022/papers/RoSE22\_paper\_4.pdf}} already exists. As well as some tools that already try to implement similar runtime verification concepts like ROSRV~\cite{huang2014rosrv} or ROSMonitoring~\cite{ferrando2020rosmonitoring}.
+An invariant represents a property that holds through the execution of the system. Having a set of invariants for a robotic system and asserting them at runtime makes it able to prove the correctness of the system. Research on invariant checking~\cite{zizyte2021importance} shows that a considerable amount of bugs on autonomous robotic systems can be avoided when representing safety violations of systems and monitoring them.
 
+Due to the unforeseen circumstances mentioned when executing robotic systems, runtime monitoring, although sometimes time-consuming, may be advantageous when identifying errors in these systems. However, implementing a form of runtime monitoring adds load to the simulation. Therefore, not demanding excessive resources is essential when taking this approach. Some challenges in implementing such mechanisms are mentioned in the cited paper~\cite{stadler2022towards}.
 
-% https://rose-workshops.github.io/files/rose2022/papers/RoSE22_paper_4.pdf
+Similar work on runtime monitoring that integrates with ROS already exists. ROSMonitoring~\cite{ferrando2020rosmonitoring} can monitor and log errors at the level of \textit{topic} malfunctioning, but it seems unable to express more high-level properties, which is the objective of this work. ROSRV~\cite{huang2014rosrv} although able to express more high-level specifications, it is highly complex and, in some way, hard for non-expert users to work with. An intuitive domain-specific language will allow a broader set of users to specify a robotic system's properties.
 
-This work aims to provide developers with a way to verify their robotic systems' temporal and positional properties automatically. We propose the introduction of a domain-specific language for developers to express their relevant properties. The given properties are compiled into monitors that can be used in simulation to ensure the correctness of the system. The language was designed from the point of view of ROS developers and tries to abstract the underlying Linear Temporal Logic (LTL) system, allowing properties to reason about native ROS constructs, like \textit{topics}, \textit{messages} and simulation information. Thus, it is possible to express properties that relate the internal information of the system with the corresponding information in the simulator.
+This work aims to provide developers with a way to verify their robotic systems' temporal and positional properties automatically. We propose the introduction of a domain-specific language for developers to express their relevant properties. The given properties compile into monitors that can be used in simulation to ensure the correctness of the system. The language was designed from the point of view of ROS developers and tries to abstract the underlying Linear Temporal Logic (LTL)~\cite{pnueli1977temporal}~\cite{dwyer1998property} system, allowing properties to reason about native ROS constructs, like \textit{topics}, \textit{messages} and simulation information. Thus, it is possible to express properties that relate the internal information of the system with the corresponding information in the simulator.
 
-We have developed a compiler for the language that generates a ROS module that monitors an existing project. The module listens to relevant information from both the robot's components and the simulator, and if a violation of any property occurs, it provides a detailed error message to the user.
+We have developed a compiler for the language that generates a ROS module that monitors an existing project. The module listens to relevant information from both the robot's components and the simulator. If a property violation occurs, it provides a detailed error message to the user.
 
 
 \section{Motivational Example}
@@ -81,7 +67,7 @@ Let us consider an autonomous car developer wanting to express that its system a
 \textit{Translating into natural language, the property states in the first section that after the robot's distance to the stop-sign is below the value of 1 in the simulator, and in the second section that up until the distance is again above 1, then in the third section the robot velocity will eventually be equal to 0.}
 \vspace{2mm}
 
-The specified property is compiled to a Python file, which is capable of running as a ROS node. The node listens only to relevant topics and performs the computations to verify the specified property.
+The specified property compiles to a Python file capable of running as a ROS node. The node listens only to relevant topics and performs the computations to verify the specified property.
 
 \begin{figure}
 \includegraphics[width=\textwidth]{error.eps}
@@ -91,15 +77,15 @@ The specified property is compiled to a Python file, which is capable of running
 The flow of the process of monitoring a robotic system is described as follows:
 
 \begin{enumerate}[label=(\roman*)]
-    \item \textbf{Property formalization:} the developer describes in the language the properties of the robotic system one wants to monitor in a \texttt{.txt} file extension.
-    \item \textbf{Compilation:} The specified properties are compiled and a python file is generated capable of running as a ROS node.
+    \item \textbf{Property formalization:} the developer describes in the DSL the properties of the robotic system one wants to monitor in a \texttt{.txt} file extension.
+    \item \textbf{Compilation:} The specified properties are compiled, and a python file is generated capable of running as a ROS node.
     \item \textbf{Monitoring:} The node can be run whenever testing the system and will listen to pertinent topics and perform the computations needed to verify the specified properties.
 \end{enumerate}
 
 
 \section{Specification Language for Robotics Properties}
 
-The domain-specific language relies on an adaptation of LTL to express temporal relations of and between simulation objects (section 3.1). Has shortcuts to express the absolute values of certain useful concepts of objects in a simulation in order to make the language usable (section 3.2). Allows for the declaration of robots relevant \textit{topics} (section 3.3). Allows to model a whole robot specific \textit{topics} (section 3.4)
+The domain-specific language relies on an adaptation of LTL to express temporal relations of and between simulation objects (section 3.1). The DSL has shortcuts to express the absolute values of certain useful concepts of objects in a simulation in order to make it usable (section 3.2). The DSL allows the declaration of robots' relevant topics (section 3.3). And finally, the DSL allows modeling of a whole robot's specific \textit{topics} (section 3.4).
 
 \subsection{Temporal Keywords}
 
@@ -108,10 +94,10 @@ We consider not only LTL basic operators but also some common shortcuts for usef
 \begin{itemize}
 \item {\bfseries always X} - X has to hold on the entire subsequent path;
 \item {\bfseries never X} - X never holds on the entire subsequent path;
-\item {\bfseries eventually X} - X eventually has to hold, somewhere on the subsequent path;
+\item {\bfseries eventually X} - X eventually has to hold somewhere on the subsequent path;
 \item {\bfseries after X, Y} - after the event X is observed, Y has to hold on the entire subsequent path;
 \item {\bfseries until X, Y} - X holds at the current or future position, and Y has to hold until that position. At that position, Y does not have to hold anymore;
-\item {\bfseries after\_until X, Y, Z} - after the event X is observed, Z has to hold on the entire subsequent path up until Y happens, at that position Z does not have to hold anymore;
+\item {\bfseries after\_until X, Y, Z} - after the event X is observed, Z has to hold on the entire subsequent path up until Y happens. At that position, Z does not have to hold anymore;
 \end{itemize}
 
 \noindent It is also possible to reference previous states of variables, using \lstinline|@{X, -y}|, representing the value of variable \lstinline|X| at time \lstinline|-y|.
@@ -144,7 +130,7 @@ In order to relate robot components with the simulation, the developer can decla
 
 \subsection{Model robots}
 
-There are a set of specific topics that can be modeled for the robot, like \textit{position} or \textit{velocity}. These will be used by the compiler to call specific functions that need this information from the robot's perspective.
+A set of specific topics can be modeled for the robot, like \textit{position} or \textit{velocity}. The compiler will use these to call specific functions that need this information from the robot's perspective.
 
 \vspace{2mm}
 
@@ -161,7 +147,7 @@ There are a set of specific topics that can be modeled for the robot, like \text
 
 \section{Examples}
 
-To validate the expressive power of our language, we present examples of expressions, inspired by real-world scenarios.
+To validate the expressive power of our language, we present examples of expressions inspired by real-world scenarios.
 
 
 \subsection{Vehicle Maximum Speed}
@@ -177,7 +163,7 @@ Some robots have a maximum safe speed at which they can move. Sometimes this lim
 
 \subsection{Follow the Leader}
 
-The first robot being above 1 velocity implies that the second robot is at least at 0.8 distance from the first robot. Up until they reach a certain location;
+The first robot being above 1 velocity implies that the second robot is at least at 0.8 distance from the first robot. Up until the first robot reaches a particular location;
 
 \vspace{2mm}
 
@@ -186,7 +172,7 @@ The first robot being above 1 velocity implies that the second robot is at least
 
 \subsection{Drone height rotors control}
 
-After a drone is at a certain altitude both rotors always have the same velocity up until the drone decreases to a certain altitude
+After a drone is at a certain altitude, both rotors always have the same velocity up until the drone decreases to a certain altitude.
 
 \vspace{2mm}
 
@@ -197,7 +183,6 @@ After a drone is at a certain altitude both rotors always have the same velocity
 \vspace{2mm}
 
 \texttt{after\_until drone.position.z > 5, drone.position.z < 5, rotor1\_vel == rotor2\_vel}
-
 
 
 \section{Conclusion}
